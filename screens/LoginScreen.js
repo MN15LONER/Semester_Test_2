@@ -25,7 +25,7 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async () => {
     if (!validateForm()) return;
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(email, password);
       // onAuthStateChanged in context will navigate
     } catch (err) {
       Alert.alert('Login Error', err.message);

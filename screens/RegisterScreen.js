@@ -25,7 +25,7 @@ export default function RegisterScreen({ navigation }) {
   const handleRegister = async () => {
     if (!validate()) return;
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(email, password);
       Alert.alert('Success', 'Account created');
       // firebase onAuthStateChanged in context will navigate
     } catch (err) {
