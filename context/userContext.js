@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from '../firebase';
 import { ref, onValue, set, update, remove } from 'firebase/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, database } from '../firebase';
