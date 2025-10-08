@@ -8,7 +8,7 @@ const firebaseConfig = {
   databaseURL: "https://semestertest2-6d13d-default-rtdb.firebaseio.com",
   projectId: "semestertest2-6d13d",
   storageBucket: "semestertest2-6d13d.firebasestorage.app",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID", //
+  messagingSenderId: "79730576071",
   appId: "1:79730576071:web:5b83e057b08143d4a04ce2",
 };
 
