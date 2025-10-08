@@ -78,12 +78,17 @@ export function UserProvider({ children }) {
 
   // Listen to auth state and cart DB
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (fbUser) => {
+    let cartOff = null;
+    const unsub = onAuthStateChanged(async (fbUser) => {
       if (fbUser) {
         setUser(fbUser);
-        // start listening to DB
+        // start listening to DB for this user; unsubscribe previous if exists
+        if (cartOff) {
+          try { cartOff(); } catch (e) {}
+          cartOff = null;
+        }
         const cartRef = ref(database, `carts/${fbUser.uid}`);
-        const off = onValue(
+        cartOff = onValue(
           cartRef,
           async (snapshot) => {
             const val = snapshot.val();
@@ -101,24 +106,30 @@ export function UserProvider({ children }) {
           }
         );
 
-        // Cleanup listener when user signs out or component unmounts
-        // store off function on state so we can call it when user changes
-        // We'll return a cleanup that calls off
         setInitializing(false);
-        return () => off();
       } else {
         setUser(null);
+        // unsub any cart listener
+        if (cartOff) {
+          try { cartOff(); } catch (e) {}
+          cartOff = null;
+        }
         // load local cart so user sees something while signed out
         loadLocalCart().then((local) => setCart(local));
         setInitializing(false);
       }
     });
-    return () => unsub();
+    return () => {
+      try { unsub(); } catch (e) {}
+      if (cartOff) {
+        try { cartOff(); } catch (e) {}
+      }
+    };
   }, []);
 
   const logout = useCallback(async () => {
     try {
-      await signOut(auth);
+      await signOut();
       setUser(null);
       setCart([]);
     } catch (err) {
