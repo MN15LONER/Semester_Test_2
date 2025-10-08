@@ -19,7 +19,7 @@ const ProductScreen = ({ navigation }) => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const { logout, user } = useUser();
+  const { logout, user, addToCart } = useUser();
 
   // Fetch products from API
   const fetchProducts = async () => {
@@ -47,7 +47,6 @@ const ProductScreen = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
-    // add header button for cart and logout
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
@@ -85,18 +84,26 @@ const ProductScreen = ({ navigation }) => {
     }
   };
 
-  // Render each product item
   const renderProductItem = ({ item }) => {
     return(
-       <TouchableOpacity style={styles.productCard} onPress={() => navigation.navigate('ProductDetail', { product: item })}>
-    <Image source={{ uri: item.image }} style={styles.productImage} resizeMode="contain" />
-    <View style={styles.productInfo}>
-      <Text style={styles.productTitle} numberOfLines={2}>{item.title}</Text>
-      <Text style={styles.productPrice}>${item.price}</Text>
-      <Text style={styles.productCategory}>{item.category}</Text>
-      <Text style={styles.productDescription} numberOfLines={2}>{item.description}</Text>
-    </View>
+       <View style={styles.productCard}>
+    <TouchableOpacity style={{ flex: 1 }} onPress={() => navigation.navigate('ProductDetail', { product: item })}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Image source={{ uri: item.image }} style={styles.productImage} resizeMode="contain" />
+        <View style={styles.productInfo}>
+          <Text style={styles.productTitle} numberOfLines={2}>{item.title}</Text>
+          <Text style={styles.productPrice}>${item.price}</Text>
+          <Text style={styles.productCategory}>{item.category}</Text>
+          <Text style={styles.productDescription} numberOfLines={2}>{item.description}</Text>
+        </View>
+      </View>
     </TouchableOpacity>
+    <View style={styles.cardActions}>
+      <TouchableOpacity style={styles.addBtn} onPress={() => addToCart(item, 1)}>
+        <Text style={styles.addBtnText}>Add</Text>
+      </TouchableOpacity>
+    </View>
+    </View>
     )
   };
 
@@ -123,7 +130,6 @@ const ProductScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Category filter */}
       <View style={{ flexDirection: 'row', padding: 8 }}>
         {categories.map((cat) => (
           <TouchableOpacity key={cat} onPress={() => {
@@ -142,7 +148,6 @@ const ProductScreen = ({ navigation }) => {
         contentContainerStyle={styles.listContent}
       />
       
-      {/* fallback logout button for small screens */}
       <TouchableOpacity 
         style={styles.logoutButton}
         onPress={() => logout()}
@@ -241,4 +246,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  cardActions: {
+    paddingTop: 8,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  addBtn: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  addBtnText: { color: 'white', fontWeight: 'bold' },
 });

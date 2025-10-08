@@ -11,7 +11,6 @@ export function UserProvider({ children }) {
   const [initializing, setInitializing] = useState(true);
   const [cart, setCart] = useState([]);
 
-  // Helper: save cart to AsyncStorage
   const persistLocal = async (items) => {
     try {
       await AsyncStorage.setItem('@shez_cart', JSON.stringify(items));
@@ -20,7 +19,6 @@ export function UserProvider({ children }) {
     }
   };
 
-  // Load local cart (used if no network)
   const loadLocalCart = async () => {
     try {
       const raw = await AsyncStorage.getItem('@shez_cart');
@@ -31,7 +29,6 @@ export function UserProvider({ children }) {
     return [];
   };
 
-  // Sync functions that write to Realtime DB under /carts/{uid}
   const writeCartToDB = async (uid, items) => {
     if (!uid) return;
     try {
@@ -41,7 +38,6 @@ export function UserProvider({ children }) {
     }
   };
 
-  // Add to cart (merge if exists)
   const addToCart = async (product, qty = 1) => {
     const existing = cart.find((c) => c.id === product.id);
     let next;
@@ -76,13 +72,11 @@ export function UserProvider({ children }) {
     if (user) await writeCartToDB(user.uid, []);
   };
 
-  // Listen to auth state and cart DB
   useEffect(() => {
     let cartOff = null;
     const unsub = onAuthStateChanged(async (fbUser) => {
       if (fbUser) {
         setUser(fbUser);
-        // start listening to DB for this user; unsubscribe previous if exists
         if (cartOff) {
           try { cartOff(); } catch (e) {}
           cartOff = null;
@@ -96,7 +90,6 @@ export function UserProvider({ children }) {
               setCart(val);
               persistLocal(val);
             } else {
-              // no cart in DB, try local
               const local = await loadLocalCart();
               setCart(local);
             }
@@ -109,12 +102,10 @@ export function UserProvider({ children }) {
         setInitializing(false);
       } else {
         setUser(null);
-        // unsub any cart listener
         if (cartOff) {
           try { cartOff(); } catch (e) {}
           cartOff = null;
         }
-        // load local cart so user sees something while signed out
         loadLocalCart().then((local) => setCart(local));
         setInitializing(false);
       }

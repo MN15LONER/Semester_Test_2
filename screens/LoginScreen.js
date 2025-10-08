@@ -26,7 +26,6 @@ export default function LoginScreen({ navigation }) {
     if (!validateForm()) return;
     try {
       await signInWithEmailAndPassword(email, password);
-      // onAuthStateChanged in context will navigate
     } catch (err) {
       Alert.alert('Login Error', err.message);
     }

@@ -26,13 +26,11 @@ function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator>
         {!user ? (
-          // Auth stack
           <>
             <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'ShopEZ - Login' }} />
             <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'ShopEZ - Register' }} />
           </>
         ) : (
-          // Main app
           <>
             <Stack.Screen name="Products" component={ProductScreen} options={{ title: 'ShopEZ Products' }} />
             <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ title: 'Product Details' }} />

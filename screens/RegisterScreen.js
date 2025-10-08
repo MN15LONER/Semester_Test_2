@@ -27,7 +27,6 @@ export default function RegisterScreen({ navigation }) {
     try {
       await createUserWithEmailAndPassword(email, password);
       Alert.alert('Success', 'Account created');
-      // firebase onAuthStateChanged in context will navigate
     } catch (err) {
       Alert.alert('Registration Error', err.message);
     }
