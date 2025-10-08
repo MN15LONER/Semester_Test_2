@@ -1,3 +1,4 @@
+If you want to see the app run follow this link https://youtube.com/shorts/fxD8tKMs8J8?feature=share
 Quick start (clone + run)
 1. Clone the repo and install dependencies:
 
