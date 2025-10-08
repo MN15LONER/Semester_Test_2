@@ -10,10 +10,16 @@ import {
 } from 'react-native';
 import axios from 'axios';
 
+import { useUser } from '../context/userContext';
+
 const ProductScreen = ({ navigation }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const { logout, user } = useUser();
 
   // Fetch products from API
   const fetchProducts = async () => {
@@ -37,12 +43,52 @@ const ProductScreen = ({ navigation }) => {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  useEffect(() => {
+    // add header button for cart and logout
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity onPress={() => navigation.navigate('Cart')} style={{ marginRight: 12 }}>
+            <Text style={{ color: '#007AFF', marginRight: 8 }}>Cart</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => logout()}>
+            <Text style={{ color: 'red', marginRight: 8 }}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation, logout]);
+
+  const fetchCategories = async () => {
+    try {
+      const resp = await axios.get('https://fakestoreapi.com/products/categories');
+      setCategories(['all', ...resp.data]);
+    } catch (err) {
+      console.warn('Failed to load categories', err);
+    }
+  };
+
+  const fetchProductsByCategory = async (category) => {
+    try {
+      setLoading(true);
+      const resp = await axios.get(`https://fakestoreapi.com/products/category/${encodeURIComponent(category)}`);
+      setProducts(resp.data);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      Alert.alert('Error', 'Failed to load products for category');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Render each product item
   const renderProductItem = ({ item }) => {
     return(
-       <View style={styles.productCard}>
+       <TouchableOpacity style={styles.productCard} onPress={() => navigation.navigate('ProductDetail', { product: item })}>
     <Image source={{ uri: item.image }} style={styles.productImage} resizeMode="contain" />
     <View style={styles.productInfo}>
       <Text style={styles.productTitle} numberOfLines={2}>{item.title}</Text>
@@ -50,7 +96,7 @@ const ProductScreen = ({ navigation }) => {
       <Text style={styles.productCategory}>{item.category}</Text>
       <Text style={styles.productDescription} numberOfLines={2}>{item.description}</Text>
     </View>
-    </View>
+    </TouchableOpacity>
     )
   };
 
@@ -77,6 +123,17 @@ const ProductScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Category filter */}
+      <View style={{ flexDirection: 'row', padding: 8 }}>
+        {categories.map((cat) => (
+          <TouchableOpacity key={cat} onPress={() => {
+            setSelectedCategory(cat);
+            if (cat === 'all') fetchProducts(); else fetchProductsByCategory(cat);
+          }} style={[styles.categoryBtn, selectedCategory === cat && styles.categoryBtnActive]}>
+            <Text style={[styles.categoryText, selectedCategory === cat && { color: 'white' }]}>{cat}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
       <FlatList
         data={products}
         renderItem={renderProductItem}
@@ -85,10 +142,10 @@ const ProductScreen = ({ navigation }) => {
         contentContainerStyle={styles.listContent}
       />
       
-      {/* Logout button */}
+      {/* fallback logout button for small screens */}
       <TouchableOpacity 
         style={styles.logoutButton}
-        onPress={() => navigation.replace('Login')}
+        onPress={() => logout()}
       >
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>

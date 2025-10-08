@@ -1,28 +1,53 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { UserProvider, useUser } from './context/userContext';
 import LoginScreen from './screens/LoginScreen';
+import RegisterScreen from './screens/RegisterScreen';
 import ProductScreen from './screens/ProductScreen';
-import { StyleSheet } from 'react-native'; // You also forgot this import
+import ProductDetailScreen from './screens/ProductDetailScreen';
+import CartScreen from './screens/CartScreen';
+import { ActivityIndicator, View } from 'react-native';
 
 const Stack = createStackNavigator();
 
-export default function App() {
+function AppNavigator() {
+  const { user, initializing } = useUser();
+
+  if (initializing) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Products" component={ProductScreen} />
+      <Stack.Navigator>
+        {!user ? (
+          // Auth stack
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'ShopEZ - Login' }} />
+            <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'ShopEZ - Register' }} />
+          </>
+        ) : (
+          // Main app
+          <>
+            <Stack.Screen name="Products" component={ProductScreen} options={{ title: 'ShopEZ Products' }} />
+            <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ title: 'Product Details' }} />
+            <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'Your Cart' }} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <UserProvider>
+      <AppNavigator />
+    </UserProvider>
+  );
+}
