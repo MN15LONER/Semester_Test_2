@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 
-export default ProductScreen = ({ navigation }) => {
+const ProductScreen = ({ navigation }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -95,6 +95,7 @@ export default ProductScreen = ({ navigation }) => {
     </View>
   );
 };
+export default ProductScreen;
 
 const styles = StyleSheet.create({
   container: {
